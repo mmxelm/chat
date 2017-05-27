@@ -1,0 +1,30 @@
+{
+	"node": true,
+	"esversion": 6,
+	"indent": 1,
+	"strict": true,
+	"curly": true,
+	"eqeqeq": true,
+	"eqnull": true,
+	"undef": true,
+	"unused": true,
+	"shadow": "outer",
+
+	"bitwise": true,
+	"forin": true,
+	"freeze": true,
+	"futurehostile": true,
+	"latedef": "nofunc",
+	"nonbsp": true,
+	"nonew": true,
+	"maxcomplexity": 6,
+	"maxdepth": 3,
+	"maxparams": 5,
+	"maxstatements": 20,
+
+	"globals": {
+		"__base":  true,
+		"inspect": true,
+		"emit": true
+	}
+}
