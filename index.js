@@ -39,22 +39,49 @@ const sendMsg = (destination) => {
   }
 };
 
+const getChannels = () => {
+  let channels = [];
+  wss.clients.forEach(ws => {
+    channels = channels.concat(ws.channels);
+  });
+  return [...new Set(channels)];
+};
+
+const getChannelMembers = (channel) => {
+  let nicks = [];
+  wss.clients.forEach(ws => {
+    if(ws.channels.includes(channel)){
+      nicks.push(ws.nick);
+    }
+  });
+  return nicks;
+}
+
 function handleMessage(message) {
   var client = this;
   var msg = parseMsg(message);
   console.log(msg);
   switch(msg.event) {
     case 'NICK':
-    client.nick = msg.data;
+      client.nick = msg.data;
     break;
     case 'JOIN':
-    client.channels.push(msg.target);
+      client.channels.push(msg.target);
     break;
     case 'PART':
+      client.channels = client.channels.filter(c => c !== msg.target);
     break;
     case 'MSG':
       sendMsg(msg.target)(msg.data, msg.target, client.nick);
     break;
+    case 'LISTCHAN':
+      let channels = getChannels();
+      client.send(JSON.stringify({event: 'CHANNELS', data:channels}));
+      break;
+    case 'LISTNICKS':
+      let nicks = getChannelMembers(msg.target);
+      client.send(JSON.stringify({event: 'NICKS', target: msg.target, data: nicks}));
+      break;
     default:
       console.log(`Unknown event ${msg.event}`);
       break;
