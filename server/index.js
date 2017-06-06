@@ -65,7 +65,7 @@ function handleMessage(message) {
   console.log(message, msg);
   switch(msg.event) {
     case 'NICK':
-      client.nick = msg.data;
+      client.nick = msg.data; // validation alpahnumeric only
     break;
     case 'JOIN':
       client.channels.push(msg.target);
@@ -76,13 +76,16 @@ function handleMessage(message) {
     case 'MSG':
       sendMsg(msg.target)(msg.data, msg.target, client.nick);
     break;
+    case 'PM':
+      console.log('Implement me!!!')
+      break;
     case 'LISTCHAN':
       let channels = getChannels();
       client.send(JSON.stringify({event: 'CHANNELS', data:channels}));
       break;
-    case 'LISTNICKS':
+    case 'LISTMEMBERS':
       let nicks = getChannelMembers(msg.target);
-      client.send(JSON.stringify({event: 'NICKS', target: msg.target, data: nicks}));
+      client.send(JSON.stringify({event: 'MEMBERS', target: msg.target, data: nicks}));
       break;
     default:
       console.log(`Unknown event ${msg.event}`);

@@ -6,17 +6,12 @@ import Json.Decode exposing (int, string, float, bool, list, nullable, Decoder)
 import Json.Decode.Pipeline exposing (decode, required, requiredAt, optional, hardcoded)
 
 
--- Convert string with json to message
--- {event: 'PM',source:'Nick', data: 'Hey'}
-
-
 parsePm : String -> ServerEvent
 parsePm message =
     let
         pmDecoder : Decoder PrivateMessageModel
         pmDecoder =
             decode PrivateMessageModel
-                |> required "event" string
                 |> required "source" string
                 |> required "data" string
 
@@ -41,7 +36,6 @@ parseMsg message =
         decoder : Decoder MessageModel
         decoder =
             decode MessageModel
-                |> required "event" string
                 |> required "source" string
                 |> required "target" string
                 |> required "data" string
@@ -52,6 +46,53 @@ parseMsg message =
         case result of
             Ok model ->
                 Message model
+
+            Err msg ->
+                let
+                    x =
+                        Debug.log "pm" msg
+                in
+                    MalformedJson
+
+
+parseChannels : String -> ServerEvent
+parseChannels message =
+    let
+        decoder : Decoder ChannelsModel
+        decoder =
+            decode ChannelsModel
+                |> required "data" (list string)
+
+        result =
+            decodeString decoder message
+    in
+        case result of
+            Ok model ->
+                Channels model
+
+            Err msg ->
+                let
+                    x =
+                        Debug.log "pm" msg
+                in
+                    MalformedJson
+
+
+parseMembers : String -> ServerEvent
+parseMembers message =
+    let
+        decoder : Decoder MembersModel
+        decoder =
+            decode MembersModel
+                |> required "target" string
+                |> required "data" (list string)
+
+        result =
+            decodeString decoder message
+    in
+        case result of
+            Ok model ->
+                Members model
 
             Err msg ->
                 let
@@ -76,12 +117,14 @@ parseEvent message =
                     "MSG" ->
                         parseMsg message
 
+                    "CHANNELS" ->
+                        parseChannels message
+
+                    "MEMBERS" ->
+                        parseMembers message
+
                     _ ->
                         UnknownEvent
 
             Err error ->
-                let
-                    f =
-                        Debug.log "event" error
-                in
-                    UnknownEvent
+                UnknownEvent
