@@ -10,6 +10,7 @@ const parseMsg = (msg) => {
   try {
     return JSON.parse(msg);
   }catch(e) {
+    console.log(e);
     return {};
   }
 };
@@ -26,7 +27,7 @@ const sendMsgToClient = (msg, nick, sender) => {
   // client.some + return true ?
   wss.clients.forEach(ws => {
     if(ws.nick === nick) {
-      ws.send(JSON.stringify({event: 'MSG',source:sender, data: msg}));
+      ws.send(JSON.stringify({event: 'PM',source:sender, data: msg}));
     }
   });
 };
@@ -59,8 +60,9 @@ const getChannelMembers = (channel) => {
 
 function handleMessage(message) {
   var client = this;
+  console.log(typeof message);
   var msg = parseMsg(message);
-  console.log(msg);
+  console.log(message, msg);
   switch(msg.event) {
     case 'NICK':
       client.nick = msg.data;
