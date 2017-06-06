@@ -42,4 +42,4 @@ type ClientEvent
 
 type Msg
     = NewMessage String
-    | Send
+    | Send ClientEvent

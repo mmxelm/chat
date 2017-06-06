@@ -3,7 +3,9 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import WebSocket
-import Types exposing (Msg(..))
+import Types exposing (..)
+import MessageDecoder exposing (parseEvent)
+import MessageEncoder exposing (encodeEvent)
 
 
 type alias Model =
@@ -18,13 +20,16 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Send ->
-            ( "", WebSocket.send "ws://localhost:8080" "{\"event\": \"NICK\", \"data\":\"foo\"}" )
+        Send event ->
+            ( "", WebSocket.send "ws://localhost:8080" (encodeEvent event) )
 
         NewMessage str ->
             let
                 _ =
                     Debug.log "msg" str
+
+                event =
+                    parseEvent str
             in
                 ( str, Cmd.none )
 
@@ -46,5 +51,5 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick Send ] [ text "Send" ]
+        [ button [ onClick (Send ListChannels) ] [ text "Send" ]
         ]

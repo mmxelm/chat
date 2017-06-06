@@ -1,4 +1,4 @@
-module MessageEncoder exposing (..)
+module MessageEncoder exposing (encodeEvent)
 
 import Types exposing (ClientEvent(..))
 

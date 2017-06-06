@@ -32,14 +32,6 @@ const sendMsgToClient = (msg, nick, sender) => {
   });
 };
 
-const sendMsg = (destination) => {
-  if(destination.startsWith('#')) {
-    return sendMsgToChannel;
-  } else {
-    return sendMsgToClient;
-  }
-};
-
 const getChannels = () => {
   let channels = [];
   wss.clients.forEach(ws => {
@@ -60,9 +52,9 @@ const getChannelMembers = (channel) => {
 
 function handleMessage(message) {
   var client = this;
-  console.log(typeof message);
   var msg = parseMsg(message);
   console.log(message, msg);
+  console.log(client.nick);
   switch(msg.event) {
     case 'NICK':
       client.nick = msg.data; // validation alpahnumeric only
@@ -74,10 +66,10 @@ function handleMessage(message) {
       client.channels = client.channels.filter(c => c !== msg.target);
     break;
     case 'MSG':
-      sendMsg(msg.target)(msg.data, msg.target, client.nick);
-    break;
+      sendMsgToChannel(msg.data, msg.target, client.nick);
+      break;
     case 'PM':
-      console.log('Implement me!!!')
+      sendMsgToClient(msg.data, msg.target, client.nick);
       break;
     case 'LISTCHAN':
       let channels = getChannels();
@@ -98,8 +90,6 @@ wss.on('connection', function connection(ws) {
   ws.isAlive = true;
   ws.channels = [];
   ws.on('pong', heartbeat);
-
-  ws.send(JSON.stringify({event: 'MSG', data:'something'}));
 });
 
 setInterval(function ping() {
