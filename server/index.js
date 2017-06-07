@@ -2,7 +2,7 @@
 
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port: 80 });
 
 function heartbeat() { this.isAlive = true; }
 
@@ -57,7 +57,9 @@ function handleMessage(message) {
   console.log(client.nick);
   switch(msg.event) {
     case 'NICK':
-      client.nick = msg.data; // validation alpahnumeric only
+      if(!msg.data.startsWith('#')){
+        client.nick = msg.data; // validation alpahnumeric only
+      }
     break;
     case 'JOIN':
       client.channels.push(msg.target);
